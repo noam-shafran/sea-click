@@ -61,6 +61,14 @@ document.addEventListener('DOMContentLoaded', () => {
         playerNamesDatalist.innerHTML = players.map(p => `<option value="${p}">`).join('');
     }
 
+    function deletePlayer(playerName) {
+        const scores = getHighScores().filter(e => e.name !== playerName);
+        saveHighScores(scores);
+        const players = getKnownPlayers().filter(p => p !== playerName);
+        localStorage.setItem(PLAYERS_KEY, JSON.stringify(players));
+        updatePlayerNamesDatalist();
+    }
+
     function renderHighScores() {
         const scores = getHighScores();
         const byPlayer = {};
@@ -75,8 +83,14 @@ document.addEventListener('DOMContentLoaded', () => {
             .sort((a, b) => b.score - a.score)
             .slice(0, 10);
         highScoresList.innerHTML = unique.map(entry =>
-            `<li>${entry.name}: ${entry.score}</li>`
+            `<li><span class="score-entry">${entry.name}: ${entry.score}</span><button class="score-delete" data-name="${entry.name.replace(/"/g, '&quot;')}" aria-label="מחק">×</button></li>`
         ).join('');
+        highScoresList.querySelectorAll('.score-delete').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                deletePlayer(btn.dataset.name);
+            });
+        });
     }
 
     function showScreen(screen) {

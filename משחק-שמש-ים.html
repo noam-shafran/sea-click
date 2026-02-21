@@ -15,6 +15,10 @@ body::selection{background:transparent}
 .high-scores{position:fixed;top:max(16px,env(safe-area-inset-top));left:max(16px,env(safe-area-inset-left));background:rgba(0,0,0,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:12px;padding:16px 20px;min-width:140px;max-width:45vw;z-index:10}
 .high-scores-title{font-family:'Segoe UI',Tahoma,sans-serif;font-size:1.25rem;color:#fff;margin-bottom:12px;text-shadow:0 1px 4px rgba(0,0,0,.5)}
 .high-scores-list{font-family:'Segoe UI',Tahoma,sans-serif;font-size:.95rem;color:#fff;padding-right:20px;line-height:1.6}
+.high-scores-list li{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.high-scores-list .score-entry{flex:1}
+.high-scores-list .score-delete{background:rgba(255,255,255,.2);border:none;color:#fff;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:1.2rem;line-height:1;padding:0;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.high-scores-list .score-delete:hover{background:rgba(229,57,53,.8)}
 .high-scores-list:empty::before{content:"אין שיאים עדיין";color:rgba(255,255,255,.7)}
 .player-name-section{display:flex;flex-direction:column;align-items:center;gap:8px}
 .player-name-section label{font-family:'Segoe UI',Tahoma,sans-serif;font-size:1rem;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.5)}
@@ -91,7 +95,8 @@ function getKnownPlayers(){try{const d=localStorage.getItem(PLAYERS_KEY);return 
 function saveHighScores(s){localStorage.setItem(STORAGE_KEY,JSON.stringify(s));renderHighScores()}
 function addKnownPlayer(n){const t=n.trim();if(!t)return;const p=getKnownPlayers();if(!p.includes(t)){p.push(t);localStorage.setItem(PLAYERS_KEY,JSON.stringify(p));updatePlayerNamesDatalist()}}
 function updatePlayerNamesDatalist(){playerNamesDatalist.innerHTML=getKnownPlayers().map(p=>`<option value="${p}">`).join('')}
-function renderHighScores(){const s=getHighScores(),o={};s.forEach(e=>{const n=o[e.name];if(!n||e.score>n)o[e.name]=e.score});highScoresList.innerHTML=Object.entries(o).map(([n,s])=>({name:n,score:s})).sort((a,b)=>b.score-a.score).slice(0,10).map(e=>`<li>${e.name}: ${e.score}</li>`).join('')}
+function deletePlayer(n){saveHighScores(getHighScores().filter(e=>e.name!==n));localStorage.setItem(PLAYERS_KEY,JSON.stringify(getKnownPlayers().filter(p=>p!==n)));updatePlayerNamesDatalist()}
+function renderHighScores(){const s=getHighScores(),o={};s.forEach(e=>{const n=o[e.name];if(!n||e.score>n)o[e.name]=e.score});const u=Object.entries(o).map(([n,s])=>({name:n,score:s})).sort((a,b)=>b.score-a.score).slice(0,10);highScoresList.innerHTML=u.map(e=>`<li><span class="score-entry">${e.name}: ${e.score}</span><button class="score-delete" data-name="${e.name.replace(/"/g,'&quot;')}" aria-label="מחק">×</button></li>`).join('');highScoresList.querySelectorAll('.score-delete').forEach(b=>{b.addEventListener('click',e=>{e.stopPropagation();deletePlayer(b.dataset.name)})})}
 function showScreen(s){startScreen.classList.add('hidden');countdownScreen.classList.add('hidden');resultsScreen.classList.add('hidden');s.classList.remove('hidden');s===startScreen?bgMusic.play().catch(()=>{}):bgMusic.pause()}
 function startCandies(){const c=document.getElementById('candiesContainer');c.innerHTML='';candies=[];for(let i=0;i<15;i++){const e=document.createElement('div');e.className='candy';e.textContent=CANDIES[Math.floor(Math.random()*CANDIES.length)];e.style.fontSize=24+Math.random()*24+'px';const x=Math.random()*window.innerWidth,y=Math.random()*window.innerHeight;candies.push({el:e,x,y,vx:(Math.random()-.5)*200,vy:(Math.random()-.5)*200});e.style.transform=`translate(${x}px,${y}px)`;c.appendChild(e)}
 function animate(){const w=window.innerWidth,h=window.innerHeight;candies.forEach(c=>{c.x+=c.vx*.016;c.y+=c.vy*.016;if(c.x<0||c.x>w)c.vx*=-1;if(c.y<0||c.y>h)c.vy*=-1;c.x=Math.max(0,Math.min(w,c.x));c.y=Math.max(0,Math.min(h,c.y));c.el.style.transform=`translate(${c.x}px,${c.y}px)`});candiesAnimationId=requestAnimationFrame(animate)}animate()}
