@@ -88,7 +88,9 @@ document.addEventListener('DOMContentLoaded', () => {
         highScoresList.querySelectorAll('.score-delete').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                deletePlayer(btn.dataset.name);
+                if (confirm(`למחוק את ${btn.dataset.name} מהשיאים?`)) {
+                    deletePlayer(btn.dataset.name);
+                }
             });
         });
     }
