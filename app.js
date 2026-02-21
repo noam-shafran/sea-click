@@ -212,14 +212,23 @@ document.addEventListener('DOMContentLoaded', () => {
         showScreen(startScreen);
     }
 
-    function handleGameTap() {
-        if (countdownActive) {
+    const activePointers = new Set();
+
+    function handleGameTap(e) {
+        if (countdownActive && activePointers.size === 0) {
             clickCount++;
             clickCountEl.textContent = clickCount;
         }
+        activePointers.add(e.pointerId);
+    }
+
+    function handlePointerUp(e) {
+        activePointers.delete(e.pointerId);
     }
 
     document.addEventListener('pointerdown', handleGameTap);
+    document.addEventListener('pointerup', handlePointerUp);
+    document.addEventListener('pointercancel', handlePointerUp);
 
     function tryStartGame() {
         const name = playerNameInput.value.trim();

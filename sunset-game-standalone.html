@@ -104,8 +104,12 @@ function stopCandies(){candiesAnimationId&&(cancelAnimationFrame(candiesAnimatio
 function startCountdown(){showScreen(countdownScreen);clickCount=0;clickCountEl.textContent='0';countdownActive=!0;startCandies();let t=50;countdownNumber.textContent=(t/10).toFixed(1);countdownInterval=setInterval(()=>{t--;countdownNumber.textContent=(t/10).toFixed(1);if(t<=0){clearInterval(countdownInterval);countdownActive=!1;stopCandies();showResults()}},100)}
 function showResults(){finalClickCountEl.textContent=clickCount;showScreen(resultsScreen);const n=(playerNameInput.value||'שחקן').trim()||'שחקן';addKnownPlayer(n);const s=getHighScores(),i=s.findIndex(e=>e.name===n);i>=0?s[i].score=Math.max(s[i].score,clickCount):s.push({name:n,score:clickCount});const o={};s.forEach(e=>{const n=o[e.name];if(!n||e.score>n)o[e.name]=e.score});saveHighScores(Object.entries(o).map(([n,s])=>({name:n,score:s})).sort((a,b)=>b.score-a.score));setTimeout(returnToStart,5e3)}
 function returnToStart(){showScreen(startScreen)}
-function handleGameTap(){countdownActive&&(clickCount++,clickCountEl.textContent=clickCount)}
+const activePointers=new Set();
+function handleGameTap(e){if(countdownActive&&activePointers.size===0)clickCount++,clickCountEl.textContent=clickCount;activePointers.add(e.pointerId)}
+function handlePointerUp(e){activePointers.delete(e.pointerId)}
 document.addEventListener('pointerdown',handleGameTap);
+document.addEventListener('pointerup',handlePointerUp);
+document.addEventListener('pointercancel',handlePointerUp);
 function tryStartGame(){const n=playerNameInput.value.trim();if(!n)return playerNameError.classList.remove('hidden'),playerNameInput.classList.add('error'),playerNameInput.focus(),!1;playerNameError.classList.add('hidden');playerNameInput.classList.remove('error');startScreen.classList.add('hidden');startCountdown();return!0}
 document.addEventListener('keydown',e=>{if(e.code!=='Space')return;countdownActive?(e.preventDefault(),clickCount++,clickCountEl.textContent=clickCount):document.activeElement!==playerNameInput&&(e.preventDefault(),!startScreen.classList.contains('hidden')&&tryStartGame())});
 function startBgMusic(){bgMusic.play().catch(()=>{})}
