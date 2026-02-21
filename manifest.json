@@ -1,0 +1,16 @@
+{
+  "name": "sea-click",
+  "short_name": "sea-click",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#1e5096",
+  "theme_color": "#e53935",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
