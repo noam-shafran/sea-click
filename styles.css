@@ -278,6 +278,36 @@ body::selection {
     pointer-events: none;
 }
 
+/* Water ripple effect */
+.ripples-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 3;
+}
+
+.ripple {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%) scale(0);
+    animation: ripple-expand 0.8s ease-out forwards;
+}
+
+@keyframes ripple-expand {
+    to {
+        transform: translate(-50%, -50%) scale(4);
+        opacity: 0;
+        border-width: 1px;
+    }
+}
+
 /* Flying candies and foods */
 .candies-container {
     position: fixed;

@@ -158,6 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function startCountdown() {
+        playerNameInput.blur();
         showScreen(countdownScreen);
         clickCount = 0;
         clickCountEl.textContent = '0';
@@ -214,10 +215,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const activePointers = new Set();
 
+    function createRipple(x, y) {
+        const ripple = document.createElement('div');
+        ripple.className = 'ripple';
+        ripple.style.left = x + 'px';
+        ripple.style.top = y + 'px';
+        document.getElementById('ripplesContainer').appendChild(ripple);
+        setTimeout(() => ripple.remove(), 850);
+    }
+
     function handleGameTap(e) {
-        if (countdownActive && activePointers.size === 0) {
-            clickCount++;
-            clickCountEl.textContent = clickCount;
+        if (e.target === playerNameInput || playerNameInput.contains(e.target)) return;
+        if (countdownActive) {
+            if (activePointers.size === 0) {
+                clickCount++;
+                clickCountEl.textContent = clickCount;
+            }
+            createRipple(e.clientX, e.clientY);
         }
         activePointers.add(e.pointerId);
     }

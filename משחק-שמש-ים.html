@@ -42,6 +42,9 @@ body::selection{background:transparent}
 .countdown-screen:not(.hidden),.results-screen:not(.hidden){animation:screen-enter .5s ease-out}
 @keyframes screen-enter{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
 .countdown-screen.hidden,.results-screen.hidden{opacity:0;transform:scale(.98);pointer-events:none}
+.ripples-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:3}
+.ripple{position:absolute;width:60px;height:60px;border-radius:50%;border:2px solid rgba(255,255,255,.6);background:rgba(255,255,255,.2);transform:translate(-50%,-50%) scale(0);animation:ripple-expand .8s ease-out forwards}
+@keyframes ripple-expand{to{transform:translate(-50%,-50%) scale(4);opacity:0;border-width:1px}}
 .candies-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1}
 .candy{position:absolute;left:0;top:0;font-size:2rem;will-change:transform;text-shadow:0 2px 8px rgba(0,0,0,.4)}
 .countdown-screen .countdown-number,.countdown-screen .clicks-during-countdown{position:relative;z-index:2}
@@ -73,6 +76,7 @@ body::selection{background:transparent}
         <h1 class="start-text" id="startText">התחלה</h1>
     </div>
     <div class="countdown-screen hidden" id="countdownScreen">
+        <div class="ripples-container" id="ripplesContainer"></div>
         <div class="candies-container" id="candiesContainer"></div>
         <div class="countdown-number" id="countdownNumber">5.0</div>
         <div class="clicks-during-countdown">לחיצות: <span id="clickCount">0</span></div>
@@ -101,11 +105,12 @@ function showScreen(s){startScreen.classList.add('hidden');countdownScreen.class
 function startCandies(){const c=document.getElementById('candiesContainer');c.innerHTML='';candies=[];for(let i=0;i<15;i++){const e=document.createElement('div');e.className='candy';e.textContent=CANDIES[Math.floor(Math.random()*CANDIES.length)];e.style.fontSize=24+Math.random()*24+'px';const x=Math.random()*window.innerWidth,y=Math.random()*window.innerHeight;candies.push({el:e,x,y,vx:(Math.random()-.5)*200,vy:(Math.random()-.5)*200});e.style.transform=`translate(${x}px,${y}px)`;c.appendChild(e)}
 function animate(){const w=window.innerWidth,h=window.innerHeight;candies.forEach(c=>{c.x+=c.vx*.016;c.y+=c.vy*.016;if(c.x<0||c.x>w)c.vx*=-1;if(c.y<0||c.y>h)c.vy*=-1;c.x=Math.max(0,Math.min(w,c.x));c.y=Math.max(0,Math.min(h,c.y));c.el.style.transform=`translate(${c.x}px,${c.y}px)`});candiesAnimationId=requestAnimationFrame(animate)}animate()}
 function stopCandies(){candiesAnimationId&&(cancelAnimationFrame(candiesAnimationId),candiesAnimationId=null);document.getElementById('candiesContainer').innerHTML='';candies=[]}
-function startCountdown(){showScreen(countdownScreen);clickCount=0;clickCountEl.textContent='0';countdownActive=!0;startCandies();let t=50;countdownNumber.textContent=(t/10).toFixed(1);countdownInterval=setInterval(()=>{t--;countdownNumber.textContent=(t/10).toFixed(1);if(t<=0){clearInterval(countdownInterval);countdownActive=!1;stopCandies();showResults()}},100)}
+function startCountdown(){playerNameInput.blur();showScreen(countdownScreen);clickCount=0;clickCountEl.textContent='0';countdownActive=!0;startCandies();let t=50;countdownNumber.textContent=(t/10).toFixed(1);countdownInterval=setInterval(()=>{t--;countdownNumber.textContent=(t/10).toFixed(1);if(t<=0){clearInterval(countdownInterval);countdownActive=!1;stopCandies();showResults()}},100)}
 function showResults(){finalClickCountEl.textContent=clickCount;showScreen(resultsScreen);const n=(playerNameInput.value||'שחקן').trim()||'שחקן';addKnownPlayer(n);const s=getHighScores(),i=s.findIndex(e=>e.name===n);i>=0?s[i].score=Math.max(s[i].score,clickCount):s.push({name:n,score:clickCount});const o={};s.forEach(e=>{const n=o[e.name];if(!n||e.score>n)o[e.name]=e.score});saveHighScores(Object.entries(o).map(([n,s])=>({name:n,score:s})).sort((a,b)=>b.score-a.score));setTimeout(returnToStart,5e3)}
 function returnToStart(){showScreen(startScreen)}
 const activePointers=new Set();
-function handleGameTap(e){if(countdownActive&&activePointers.size===0)clickCount++,clickCountEl.textContent=clickCount;activePointers.add(e.pointerId)}
+function createRipple(x,y){const r=document.createElement('div');r.className='ripple';r.style.left=x+'px';r.style.top=y+'px';document.getElementById('ripplesContainer').appendChild(r);setTimeout(()=>r.remove(),850)}
+function handleGameTap(e){if(e.target===playerNameInput||playerNameInput.contains(e.target))return;if(countdownActive){if(activePointers.size===0)clickCount++,clickCountEl.textContent=clickCount;createRipple(e.clientX,e.clientY)}activePointers.add(e.pointerId)}
 function handlePointerUp(e){activePointers.delete(e.pointerId)}
 document.addEventListener('pointerdown',handleGameTap);
 document.addEventListener('pointerup',handlePointerUp);
