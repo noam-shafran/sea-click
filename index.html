@@ -20,9 +20,11 @@
     
     <div class="start-screen" id="startScreen">
         <div class="player-name-section">
-            <label for="playerName">שם שחקן:</label>
-            <input type="text" id="playerName" list="playerNames" placeholder="הקלד שם או בחר מקיים">
-            <datalist id="playerNames"></datalist>
+            <label for="playerSelect">שם שחקן:</label>
+            <select id="playerSelect">
+                <option value="">בחר שחקן</option>
+                <option value="__add_new__">➕ הוסף שם חדש</option>
+            </select>
             <p class="player-name-error hidden" id="playerNameError">יש לבחור או ליצור שחקן כדי להתחיל</p>
         </div>
         <button class="play-button" id="playButton" aria-label="התחלה">

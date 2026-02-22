@@ -1,6 +1,6 @@
 const STORAGE_KEY = 'sunset-game-highscores';
 const PLAYERS_KEY = 'sunset-game-players';
-const VERSION = '1.3';  /* עדכן בכל שחרור גרסה */
+const VERSION = '1.4';  /* עדכן בכל שחרור גרסה */
 
 document.addEventListener('DOMContentLoaded', () => {
     const playButton = document.getElementById('playButton');
@@ -10,9 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const countdownNumber = document.getElementById('countdownNumber');
     const clickCountEl = document.getElementById('clickCount');
     const finalClickCountEl = document.getElementById('finalClickCount');
-    const playerNameInput = document.getElementById('playerName');
+    const playerSelect = document.getElementById('playerSelect');
     const playerNameError = document.getElementById('playerNameError');
-    const playerNamesDatalist = document.getElementById('playerNames');
     const highScoresList = document.getElementById('highScoresList');
 
     const CANDIES = ['🍬', '🍭', '🍫', '🍪', '🍩', '🧁', '🍰', '🎂', '🍦', '🥧', '🍡', '🍫'];
@@ -53,13 +52,24 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!players.includes(nameTrimmed)) {
             players.push(nameTrimmed);
             localStorage.setItem(PLAYERS_KEY, JSON.stringify(players));
-            updatePlayerNamesDatalist();
+            updatePlayerSelect();
         }
     }
 
-    function updatePlayerNamesDatalist() {
+    const ADD_NEW_VALUE = '__add_new__';
+
+    function updatePlayerSelect() {
         const players = getKnownPlayers();
-        playerNamesDatalist.innerHTML = players.map(p => `<option value="${p}">`).join('');
+        const current = playerSelect.value;
+        playerSelect.innerHTML =
+            '<option value="">בחר שחקן</option>' +
+            players.map(p => `<option value="${p.replace(/"/g, '&quot;')}">${p.replace(/</g, '&lt;')}</option>`).join('') +
+            `<option value="${ADD_NEW_VALUE}">➕ הוסף שם חדש</option>`;
+        if (current && current !== ADD_NEW_VALUE && players.includes(current)) {
+            playerSelect.value = current;
+        } else if (players.length > 0 && !current) {
+            playerSelect.value = players[0];
+        }
     }
 
     function deletePlayer(playerName) {
@@ -67,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveHighScores(scores);
         const players = getKnownPlayers().filter(p => p !== playerName);
         localStorage.setItem(PLAYERS_KEY, JSON.stringify(players));
-        updatePlayerNamesDatalist();
+        updatePlayerSelect();
     }
 
     function renderHighScores() {
@@ -103,8 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         screen.classList.remove('hidden');
         const inGame = screen === countdownScreen || screen === resultsScreen;
         document.body.classList.toggle('in-game', inGame);
-        playerNameInput.tabIndex = inGame ? -1 : 0;
-        playerNameInput.readOnly = inGame;
+        playerSelect.tabIndex = inGame ? -1 : 0;
         if (screen === startScreen) {
             try { bgMusic.currentTime = 0; bgMusic.play().catch(() => {}); } catch (_) {}
         } else {
@@ -163,7 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function startCountdown() {
-        playerNameInput.blur();
+        playerSelect.blur();
         document.activeElement?.blur?.();
         showScreen(countdownScreen);
         clickCount = 0;
@@ -191,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
         finalClickCountEl.textContent = clickCount;
         showScreen(resultsScreen);
 
-        const playerName = (playerNameInput.value || 'שחקן').trim() || 'שחקן';
+        const playerName = (playerSelect.value && playerSelect.value !== ADD_NEW_VALUE ? playerSelect.value : 'שחקן').trim() || 'שחקן';
         addKnownPlayer(playerName);
         const scores = getHighScores();
         const existingIndex = scores.findIndex(e => e.name === playerName);
@@ -231,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleGameTap(e) {
-        if (e.target === playerNameInput || playerNameInput.contains(e.target)) return;
+        if (e.target === playerSelect || playerSelect.contains(e.target)) return;
         if (countdownActive) {
             if (activePointers.size === 0) {
                 clickCount++;
@@ -251,15 +260,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('pointercancel', handlePointerUp);
 
     function tryStartGame() {
-        const name = playerNameInput.value.trim();
+        const name = (playerSelect.value && playerSelect.value !== ADD_NEW_VALUE ? playerSelect.value : '').trim();
         if (!name) {
             playerNameError.classList.remove('hidden');
-            playerNameInput.classList.add('error');
-            playerNameInput.focus();
+            playerSelect.classList.add('error');
             return false;
         }
-        playerNameError.classList.remove('hidden');
-        playerNameInput.classList.remove('error');
+        playerNameError.classList.add('hidden');
+        playerSelect.classList.remove('error');
         startScreen.classList.add('hidden');
         startCountdown();
         return true;
@@ -271,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             clickCount++;
             clickCountEl.textContent = clickCount;
-        } else if (document.activeElement !== playerNameInput) {
+        } else if (document.activeElement !== playerSelect) {
             e.preventDefault();
             if (!startScreen.classList.contains('hidden')) {
                 startBgMusic();
@@ -292,14 +300,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('pointerdown', () => startBgMusic(), { once: true });
 
-    playerNameInput.addEventListener('input', () => {
-        if (playerNameInput.value.trim()) {
+    playerSelect.addEventListener('change', () => {
+        if (playerSelect.value === ADD_NEW_VALUE) {
+            const newName = prompt('הכנס שם חדש:');
+            if (newName && newName.trim()) {
+                addKnownPlayer(newName.trim());
+                playerSelect.value = newName.trim();
+                playerNameError.classList.add('hidden');
+                playerSelect.classList.remove('error');
+            } else {
+                playerSelect.value = getKnownPlayers()[0] || '';
+            }
+        } else if (playerSelect.value) {
             playerNameError.classList.add('hidden');
-            playerNameInput.classList.remove('error');
+            playerSelect.classList.remove('error');
         }
     });
 
-    updatePlayerNamesDatalist();
+    updatePlayerSelect();
     renderHighScores();
     document.getElementById('versionEl').textContent = 'v' + VERSION;
 });

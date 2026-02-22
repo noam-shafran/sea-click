@@ -115,23 +115,28 @@ body.in-game .high-scores {
     text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
 }
 
-.player-name-section input {
+.player-name-section select {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     font-size: 16px;
-    padding: 12px 16px;
+    padding: 12px 36px 12px 16px;
     border-radius: 8px;
     border: 2px solid rgba(255, 255, 255, 0.5);
     background: rgba(255, 255, 255, 0.9);
     min-width: 180px;
     max-width: 90vw;
-    user-select: text;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
 }
 
-.player-name-section input::placeholder {
-    color: #999;
+.player-name-section select:focus {
+    outline: none;
+    border-color: rgba(229, 57, 53, 0.8);
 }
 
-.player-name-section input.error {
+.player-name-section select.error {
     border-color: #e53935;
 }
 
