@@ -437,6 +437,20 @@ body::selection {
     }
 }
 
+/* Version display - bottom center */
+.version {
+    position: fixed;
+    bottom: max(8px, env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    z-index: 5;
+    pointer-events: none;
+}
+
 /* Prevent pull-to-refresh during game on mobile */
 @media (hover: none) and (pointer: coarse) {
     body {

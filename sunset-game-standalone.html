@@ -55,6 +55,7 @@ body::selection{background:transparent}
 .results-count{font-family:'Segoe UI',Tahoma,sans-serif;font-size:2rem;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.5);animation:results-pop .5s cubic-bezier(.34,1.56,.64,1) .2s both}
 @keyframes results-pop{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
 .results-hint{font-family:'Segoe UI',Tahoma,sans-serif;font-size:1rem;color:rgba(255,255,255,.8);text-shadow:0 1px 4px rgba(0,0,0,.5)}
+.version{position:fixed;bottom:max(8px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);font-family:'Segoe UI',Tahoma,sans-serif;font-size:.75rem;color:rgba(255,255,255,.5);text-shadow:0 1px 2px rgba(0,0,0,.3);z-index:5;pointer-events:none}
 @media(max-width:600px){.high-scores{padding:12px 16px;min-width:120px;max-width:55vw}.high-scores-title{font-size:1.1rem}.high-scores-list{font-size:.85rem}.start-text{font-size:2rem}.player-name-section{gap:6px}.clicks-during-countdown{font-size:1.25rem}.results-title{font-size:2rem}.results-count{font-size:1.5rem}.results-hint{font-size:.9rem}.candy{font-size:1.5rem}}
 @media(hover:none) and (pointer:coarse){body{overscroll-behavior-y:contain}}
     </style>
@@ -87,8 +88,9 @@ body::selection{background:transparent}
         <p class="results-hint">יחזור להתחלה בעוד 5 שניות</p>
     </div>
     <audio id="bgMusic" loop preload="auto"><source src="https://www.orangefreesounds.com/wp-content/uploads/2021/02/Calm-relaxing-piano-music.mp3" type="audio/mpeg"></audio>
+    <div class="version" id="versionEl"></div>
     <script>
-const STORAGE_KEY='sunset-game-highscores',PLAYERS_KEY='sunset-game-players';
+const STORAGE_KEY='sunset-game-highscores',PLAYERS_KEY='sunset-game-players',VERSION='1.2';
 document.addEventListener('DOMContentLoaded',()=>{
 const CANDIES=['🍬','🍭','🍫','🍪','🍩','🧁','🍰','🎂','🍦','🥧','🍡','🍫'];
 const bgMusic=document.getElementById('bgMusic');
@@ -121,7 +123,7 @@ function startBgMusic(){bgMusic.play().catch(()=>{})}
 playButton.addEventListener('click',e=>(e.stopPropagation(),startBgMusic(),tryStartGame()));
 document.addEventListener('pointerdown',()=>startBgMusic(),{once:!0});
 playerNameInput.addEventListener('input',()=>{playerNameInput.value.trim()&&(playerNameError.classList.add('hidden'),playerNameInput.classList.remove('error'))});
-updatePlayerNamesDatalist();renderHighScores()});
+updatePlayerNamesDatalist();renderHighScores();document.getElementById('versionEl').textContent='v'+VERSION});
     </script>
 </body>
 </html>

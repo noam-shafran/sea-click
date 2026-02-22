@@ -1,5 +1,6 @@
 const STORAGE_KEY = 'sunset-game-highscores';
 const PLAYERS_KEY = 'sunset-game-players';
+const VERSION = '1.2';  /* עדכן בכל שחרור גרסה */
 
 document.addEventListener('DOMContentLoaded', () => {
     const playButton = document.getElementById('playButton');
@@ -295,4 +296,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updatePlayerNamesDatalist();
     renderHighScores();
+    document.getElementById('versionEl').textContent = 'v' + VERSION;
 });
