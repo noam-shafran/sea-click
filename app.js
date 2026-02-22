@@ -1,6 +1,6 @@
 const STORAGE_KEY = 'sunset-game-highscores';
 const PLAYERS_KEY = 'sunset-game-players';
-const VERSION = '1.2';  /* עדכן בכל שחרור גרסה */
+const VERSION = '1.3';  /* עדכן בכל שחרור גרסה */
 
 document.addEventListener('DOMContentLoaded', () => {
     const playButton = document.getElementById('playButton');
@@ -101,6 +101,10 @@ document.addEventListener('DOMContentLoaded', () => {
         countdownScreen.classList.add('hidden');
         resultsScreen.classList.add('hidden');
         screen.classList.remove('hidden');
+        const inGame = screen === countdownScreen || screen === resultsScreen;
+        document.body.classList.toggle('in-game', inGame);
+        playerNameInput.tabIndex = inGame ? -1 : 0;
+        playerNameInput.readOnly = inGame;
         if (screen === startScreen) {
             try { bgMusic.currentTime = 0; bgMusic.play().catch(() => {}); } catch (_) {}
         } else {
@@ -160,6 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function startCountdown() {
         playerNameInput.blur();
+        document.activeElement?.blur?.();
         showScreen(countdownScreen);
         clickCount = 0;
         clickCountEl.textContent = '0';

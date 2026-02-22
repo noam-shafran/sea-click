@@ -26,6 +26,12 @@ body::selection {
     background: transparent;
 }
 
+/* During game: hide clickable elements to prevent keyboard/focus issues */
+body.in-game .high-scores {
+    visibility: hidden;
+    pointer-events: none;
+}
+
 /* High scores table */
 .high-scores {
     position: fixed;
